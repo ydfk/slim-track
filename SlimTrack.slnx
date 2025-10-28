@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="SlimTrack.Client/SlimTrack.Client.csproj" />
+  <Project Path="SlimTrack.Server/SlimTrack.Server.csproj" />
+  <Project Path="SlimTrack.Shared/SlimTrack.Shared.csproj" />
+</Solution>

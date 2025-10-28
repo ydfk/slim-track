@@ -1,0 +1,19 @@
+<script src="./chart.umd.min.js"></script>
+<script>
+    window.slimTrackCharts = {
+        renderLine: (canvasId, labels, data) => {
+            const ctx = document.getElementById(canvasId).getContext('2d');
+            if (window._stChart) { window._stChart.destroy(); }
+            window._stChart = new Chart(ctx, {
+                type: 'line',
+                data: { labels, datasets: [{ label: '体重(kg)', data, tension: 0.3, fill: false }] },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: { y: { beginAtZero: false } },
+                    plugins: { legend: { display: true } }
+                }
+            });
+        }
+    };
+</script>

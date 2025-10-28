@@ -1,0 +1,72 @@
+﻿@page "/"
+@using System.ComponentModel.DataAnnotations
+@inject SlimTrack.Client.Services.WeightService Api
+
+<h3 class="title">体重记录</h3>
+
+<EditForm Model="@vm" OnValidSubmit="@Save">
+    <DataAnnotationsValidator />
+    <div class="card">
+        <div class="row">
+            <label>日期</label>
+            <InputDate TValue="DateOnly ?" @bind-Value="vm.Date" />
+            <ValidationMessage For="@(() => vm.Date)" />
+        </div>
+        <div class="row">
+            <label>体重(kg)</label>
+            <InputNumber TValue="decimal" @bind-Value="vm.WeightKg" />
+            <ValidationMessage For="@(() => vm.WeightKg)" />
+        </div>
+        <div class="row">
+            <label>备注</label>
+            <InputText @bind-Value="vm.Note" />
+        </div>
+        <button type="submit">保存/更新</button>
+    </div>
+</EditForm>
+
+<WeightChart Days="60" />
+
+<EntriesTable Items="entries" OnDelete="OnDelete" />
+
+@code {
+    private List<SlimTrack.Shared.WeightEntryDto> entries = [];
+
+    private WeightForm vm = new()
+    {
+        Date = DateOnly.FromDateTime(DateTime.Today)
+    };
+
+    protected override async Task OnInitializedAsync() => await Reload();
+
+    private async Task Reload()
+    {
+        entries = await Api.List();
+        StateHasChanged();
+    }
+
+    private async Task Save()
+    {
+        if (vm.Date is null) return;
+        await Api.Upsert(new(vm.Date.Value, vm.WeightKg, vm.Note));
+        await Reload();
+    }
+
+    private async Task OnDelete(int id)
+    {
+        await Api.Delete(id);
+        await Reload();
+    }
+
+    public class WeightForm
+    {
+        [Required(ErrorMessage = "请选择日期")]
+        public DateOnly? Date { get; set; }
+
+        [Range(1, 500, ErrorMessage = "体重需在 1~500 kg")]
+        public decimal WeightKg { get; set; }
+
+        [MaxLength(200)]
+        public string? Note { get; set; }
+    }
+}

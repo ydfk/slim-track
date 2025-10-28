@@ -1,0 +1,22 @@
+﻿@inject SlimTrack.Client.Services.WeightService Api
+@inject IJSRuntime JS
+@code {
+    [Parameter] public int Days { get; set; } = 30;
+    ElementReference canvasRef;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender) await Render();
+    }
+
+    private async Task Render()
+    {
+        var stats = await Api.Stats(Days) ?? new(0, 0, 0, []);
+        var labels = stats.points.Select(p => p.date.ToString("MM-dd")).ToArray();
+        var data = stats.points.Select(p => (double)p.weightKg).ToArray();
+        await JS.InvokeVoidAsync("slimTrackCharts.renderLine", "wchart", labels, data);
+    }
+}
+<div class="card" style="height:320px">
+    <canvas id="wchart" @ref="canvasRef"></canvas>
+</div>
