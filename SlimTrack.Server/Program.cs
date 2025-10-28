@@ -1,7 +1,8 @@
-using Microsoft.AspNetCore.Components.WebAssembly.Server; // Ìí¼Ó´Ë using Ö¸Áî
+using Microsoft.AspNetCore.Components.WebAssembly.Server; // ï¿½ï¿½ï¿½Ó´ï¿½ using Ö¸ï¿½ï¿½
 using Microsoft.EntityFrameworkCore;
 using SlimTrack.Server;
 using SlimTrack.Shared;
+using Microsoft.Extensions.DependencyInjection;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,18 +16,25 @@ builder.Services.AddControllers();
 
 var app = builder.Build();
 
+// Ensure database schema is up to date before handling requests
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    db.Database.Migrate();
+}
+
 app.UseHttpsRedirection();
 
-// ¡ï ÍÐ¹Ü Blazor WASM ¾²Ì¬×ÊÔ´£¨À´×Ô Client ÏîÄ¿£©
+// ï¿½ï¿½ ï¿½Ð¹ï¿½ Blazor WASM ï¿½ï¿½Ì¬ï¿½ï¿½Ô´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ Client ï¿½ï¿½Ä¿ï¿½ï¿½
 app.UseBlazorFrameworkFiles();
 app.UseStaticFiles();
 
-// ¡ï API Â·ÓÉ£¨Èç¹ûÄãÓÐ Minimal API/Controller£©
+// ï¿½ï¿½ API Â·ï¿½É£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ Minimal API/Controllerï¿½ï¿½
 app.MapControllers();
-// ÕâÀï²»ÒªÔÙ MapGet("/")£¡»áµ²×¡Ç°¶ËÈë¿Ú
+// ï¿½ï¿½ï¿½ï²»Òªï¿½ï¿½ MapGet("/")ï¿½ï¿½ï¿½áµ²×¡Ç°ï¿½ï¿½ï¿½ï¿½ï¿½
 
 
-// ÁÐ±í£¨Ö§³ÖÈÕÆÚ·¶Î§£©£º
+// ï¿½Ð±ï¿½ï¿½ï¿½Ö§ï¿½ï¿½ï¿½ï¿½ï¿½Ú·ï¿½Î§ï¿½ï¿½ï¿½ï¿½
 app.MapGet("/api/weights", async (AppDbContext db, DateOnly? start, DateOnly? end) =>
 {
     var q = db.WeightEntries.AsQueryable();
@@ -40,7 +48,7 @@ app.MapGet("/api/weights", async (AppDbContext db, DateOnly? start, DateOnly? en
     return Results.Ok(list);
 });
 
-// Í³¼Æ£¨×î½ü N Ìì£©£º
+// Í³ï¿½Æ£ï¿½ï¿½ï¿½ï¿½ N ï¿½ì£©ï¿½ï¿½
 app.MapGet("/api/weights/stats", async (AppDbContext db, int days) =>
 {
     var since = DateOnly.FromDateTime(DateTime.UtcNow.Date.AddDays(-days));
@@ -57,7 +65,7 @@ app.MapGet("/api/weights/stats", async (AppDbContext db, int days) =>
     return Results.Ok(new { min, max, avg, points = data });
 });
 
-// ÐÂÔö/¸üÐÂ£¨Upsert£º°´ Date Î¨Ò»£©£º
+// ï¿½ï¿½ï¿½ï¿½/ï¿½ï¿½ï¿½Â£ï¿½Upsertï¿½ï¿½ï¿½ï¿½ Date Î¨Ò»ï¿½ï¿½ï¿½ï¿½
 app.MapPost("/api/weights", async (AppDbContext db, UpsertWeightEntryRequest req) =>
 {
     var entity = await db.WeightEntries.FirstOrDefaultAsync(x => x.Date == req.Date);
@@ -76,7 +84,7 @@ app.MapPost("/api/weights", async (AppDbContext db, UpsertWeightEntryRequest req
     return Results.Ok(new { entity.Id });
 });
 
-// É¾³ý
+// É¾ï¿½ï¿½
 app.MapDelete("/api/weights/{id:int}", async (AppDbContext db, int id) =>
 {
     var e = await db.WeightEntries.FindAsync(id);
@@ -87,8 +95,11 @@ app.MapDelete("/api/weights/{id:int}", async (AppDbContext db, int id) =>
 });
 
 
-// ¡ï SPA »ØÍËµ½Ç°¶ËÈë¿Ú
+// ï¿½ï¿½ SPA ï¿½ï¿½ï¿½Ëµï¿½Ç°ï¿½ï¿½ï¿½ï¿½ï¿½
 app.MapFallbackToFile("index.html");
 
 app.Run();
+
+
+
 

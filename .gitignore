@@ -472,3 +472,4 @@ SlimTrack.Server/appdata/
 .env.local
 .env.*.local
 appsettings.Development.json
+.history
