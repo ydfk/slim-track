@@ -3,6 +3,8 @@
 @code {
     [Parameter] public int Days { get; set; } = 30;
     ElementReference canvasRef;
+    private bool isHorizontal = false;
+    private bool isJin = true;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -13,10 +15,56 @@
     {
         var stats = await Api.Stats(Days) ?? new(0, 0, 0, []);
         var labels = stats.points.Select(p => p.date.ToString("MM-dd")).ToArray();
-        var data = stats.points.Select(p => (double)p.weightKg).ToArray();
-        await JS.InvokeVoidAsync("slimTrackCharts.renderLine", "wchart", labels, data);
+        var data = stats.points.Select(p => (double)p.weightGongJin).ToArray();
+        if (isJin)
+        {
+            data = stats.points.Select(p => (double)(p.weightJin)).ToArray();
+        }
+
+        await JS.InvokeVoidAsync("slimTrackCharts.renderLine", "wchart", labels, data, isHorizontal);
+    }
+
+    private async Task ToggleOrientation()
+    {
+        isHorizontal = !isHorizontal;
+        await Render();
+    }
+
+    private async Task ToggleUnit()
+    {
+        isJin = !isJin;
+        await Render();
     }
 }
-<div class="card" style="height:320px">
-    <canvas id="wchart" @ref="canvasRef"></canvas>
+<div class="card chart-container">
+    <div class="chart-header">
+        <h4>体重趋势图</h4>
+        <div class="chart-controls">
+            <button class="orientation-btn" @onclick="ToggleUnit" title="切换单位">
+                @if (isJin)
+                {
+                    <span>📏 斤</span>
+                }
+                else
+                {
+                    <span>📏 公斤</span>
+                }
+            </button>
+            <button class="orientation-btn" @onclick="ToggleOrientation" title="切换方向">
+                @if (isHorizontal)
+                {
+                    <span>📊 竖向</span>
+                }
+                else
+                {
+                    <span>📈 横向</span>
+                }
+            </button>
+        </div>
+    </div>
+    <div class="chart-scroll @(isHorizontal ? "horizontal-scroll" : "")">
+        <div class="chart-wrapper @(isHorizontal ? "horizontal" : "")">
+            <canvas id="wchart" @ref="canvasRef"></canvas>
+        </div>
+    </div>
 </div>

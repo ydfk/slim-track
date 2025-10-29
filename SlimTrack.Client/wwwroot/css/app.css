@@ -1,59 +1,325 @@
 ﻿body {
-    font-family: -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans SC", sans-serif;
-    margin: 0;
-    padding: 16px;
+  font-family: -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans SC", sans-serif;
+  margin: 0;
+  padding: 16px;
+  max-width: 100%;
+  overflow-x: hidden;
 }
 
 .title {
-    font-size: 20px;
-    margin: 8px 0 12px;
+  font-size: 20px;
+  margin: 8px 0 12px;
+}
+
+/* 标签页样式 */
+.tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+  border-bottom: 2px solid #e5e7eb;
+}
+
+.tab-button {
+  flex: 1;
+  padding: 12px 16px;
+  background: none;
+  border: none;
+  border-bottom: 3px solid transparent;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 500;
+  color: #6b7280;
+  transition: all 0.2s;
+  margin-bottom: -2px;
+}
+
+.tab-button:hover {
+  color: #374151;
+  background-color: #f9fafb;
+}
+
+.tab-button.active {
+  color: #3b82f6;
+  border-bottom-color: #3b82f6;
+}
+
+.tab-content {
+  animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .card {
-    padding: 12px;
-    border: 1px solid #e5e7eb;
-    border-radius: 12px;
-    margin: 12px 0;
+  padding: 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  margin: 12px 0;
 }
 
 .row {
-    display: flex;
-    gap: 8px;
-    align-items: center;
-    margin: 8px 0;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin: 8px 0;
 }
 
-    .row > label {
-        width: 80px;
-    }
+.row > label {
+  width: 80px;
+  font-weight: 500;
+}
 
-input, button {
-    padding: 8px;
-    border-radius: 8px;
-    border: 1px solid #d1d5db;
+input,
+button {
+  padding: 8px;
+  border-radius: 8px;
+  border: 1px solid #d1d5db;
 }
 
 button {
-    cursor: pointer;
+  cursor: pointer;
+  background-color: #fff;
+}
+
+.submit-button {
+  width: 100%;
+  background-color: #3b82f6;
+  color: white;
+  border: none;
+  padding: 12px;
+  font-size: 16px;
+  font-weight: 500;
+  margin-top: 8px;
+}
+
+.submit-button:hover {
+  background-color: #2563eb;
 }
 
 .table {
-    width: 100%;
-    border-collapse: collapse;
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
 }
 
-    .table th, .table td {
-        border-bottom: 1px solid #eee;
-        padding: 8px;
-    }
+.table th,
+.table td {
+  border-bottom: 1px solid #eee;
+  padding: 8px;
+  text-align: left;
+}
+
+.table th {
+  background-color: #f9fafb;
+  font-weight: 600;
+}
+
+/* 图表容器样式 */
+.chart-container {
+  padding: 8px;
+}
+
+.chart-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  padding: 0 4px;
+}
+
+.chart-header h4 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #374151;
+  flex: 1; /* 让标题占据左侧空间 */
+}
+
+.chart-controls {
+  display: flex;
+  gap: 8px;
+  margin-left: auto; /* 推到最右边 */
+}
+
+.orientation-btn {
+  padding: 6px 12px;
+  background-color: #f3f4f6;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap; /* 防止按钮文字换行 */
+}
+
+.orientation-btn:hover {
+  background-color: #e5e7eb;
+  border-color: #9ca3af;
+}
+
+.orientation-btn:active {
+  transform: scale(0.95);
+}
+
+.chart-scroll {
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch; /* iOS 平滑滚动 */
+  scrollbar-width: thin; /* Firefox 细滚动条 */
+}
+
+/* 横向模式需要垂直滚动 */
+.chart-scroll.horizontal-scroll {
+  overflow-x: hidden;
+  overflow-y: auto;
+  max-height: 600px; /* 限制最大高度,启用滚动 */
+}
+
+/* 自定义滚动条样式 */
+.chart-scroll::-webkit-scrollbar {
+  height: 6px;
+  width: 6px; /* 垂直滚动条宽度 */
+}
+
+.chart-scroll::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 3px;
+}
+
+.chart-scroll::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 3px;
+}
+
+.chart-scroll::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+.chart-wrapper {
+  min-width: 100%;
+  width: max-content;
+  height: 320px;
+  position: relative;
+}
+
+/* 横向模式 - 日期在Y轴,需要足够的高度 */
+.chart-wrapper.horizontal {
+  height: auto;
+  min-height: 800px; /* 增加高度以显示更多日期 */
+}
+
+/* 在移动端启用横向滚动 */
+@media (max-width: 768px) {
+  .chart-wrapper {
+    min-width: 600px; /* 确保图表有足够宽度可以滚动 */
+  }
+
+  .chart-wrapper.horizontal {
+    min-width: 100%;
+    min-height: 1000px; /* 平板横屏时显示更多数据 */
+  }
+
+  .chart-scroll.horizontal-scroll {
+    max-height: 500px; /* 平板上限制高度 */
+  }
+}
 
 @media (max-width: 480px) {
-    .row {
-        flex-direction: column;
-        align-items: stretch;
-    }
+  .chart-wrapper {
+    min-width: 500px;
+    height: 280px;
+  }
 
-        .row > label {
-            width: auto;
-        }
+  .chart-wrapper.horizontal {
+    min-width: 100%;
+    min-height: 1200px; /* 手机横屏时,显示60天数据需要足够高度 */
+  }
+
+  .chart-container {
+    padding: 6px;
+  }
+
+  .chart-scroll.horizontal-scroll {
+    max-height: 400px; /* 手机上限制高度,方便滚动 */
+  }
+
+  .chart-header h4 {
+    font-size: 14px;
+  }
+
+  .orientation-btn {
+    padding: 5px 10px;
+    font-size: 13px;
+  }
+}
+
+/* 移动端适配 */
+@media (max-width: 480px) {
+  body {
+    padding: 8px;
+  }
+
+  .title {
+    font-size: 18px;
+  }
+
+  .tabs {
+    gap: 4px;
+  }
+
+  .tab-button {
+    padding: 10px 12px;
+    font-size: 15px;
+  }
+
+  .row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .row > label {
+    width: auto;
+  }
+
+  .card {
+    padding: 10px;
+  }
+
+  .table {
+    font-size: 12px;
+  }
+
+  .table th,
+  .table td {
+    padding: 6px 4px;
+  }
+
+  /* 在小屏幕上优化表格显示 */
+  .table button {
+    padding: 6px 10px;
+    font-size: 12px;
+  }
+}
+
+/* 超小屏幕优化 */
+@media (max-width: 360px) {
+  .tab-button {
+    font-size: 14px;
+    padding: 8px;
+  }
+
+  .table {
+    font-size: 11px;
+  }
 }

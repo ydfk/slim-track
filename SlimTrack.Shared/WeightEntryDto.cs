@@ -9,13 +9,14 @@ namespace SlimTrack.Shared
     public record WeightEntryDto(
         int Id,
         DateOnly Date,
-        decimal WeightKg,
+        decimal WeightJin,      // 斤
+        decimal WeightGongJin,  // 公斤
         string? Note
     );
 
     public record UpsertWeightEntryRequest(
         DateOnly Date,
-        decimal WeightKg,
+        decimal WeightGongJin,  // 公斤
         string? Note
     );
 }

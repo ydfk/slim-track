@@ -4,33 +4,50 @@
 
 <h3 class="title">体重记录</h3>
 
-<EditForm Model="@vm" OnValidSubmit="@Save">
-    <DataAnnotationsValidator />
-    <div class="card">
-        <div class="row">
-            <label>日期</label>
-            <InputDate TValue="DateOnly ?" @bind-Value="vm.Date" />
-            <ValidationMessage For="@(() => vm.Date)" />
-        </div>
-        <div class="row">
-            <label>体重(kg)</label>
-            <InputNumber TValue="decimal" @bind-Value="vm.WeightKg" />
-            <ValidationMessage For="@(() => vm.WeightKg)" />
-        </div>
-        <div class="row">
-            <label>备注</label>
-            <InputText @bind-Value="vm.Note" />
-        </div>
-        <button type="submit">保存/更新</button>
-    </div>
-</EditForm>
+<div class="tabs">
+    <button class="tab-button @(activeTab == "record" ? "active" : "")" @onclick='() => activeTab = "record"'>
+        记录
+    </button>
+    <button class="tab-button @(activeTab == "chart" ? "active" : "")" @onclick='() => activeTab = "chart"'>
+        图表
+    </button>
+</div>
 
-<WeightChart Days="60" />
+<div class="tab-content">
+    @if (activeTab == "record")
+    {
+        <EditForm Model="@vm" OnValidSubmit="@Save">
+            <DataAnnotationsValidator />
+            <div class="card">
+                <div class="row">
+                    <label>日期</label>
+                    <InputDate TValue="DateOnly ?" @bind-Value="vm.Date" />
+                    <ValidationMessage For="@(() => vm.Date)" />
+                </div>
+                <div class="row">
+                    <label>体重(斤)</label>
+                    <InputNumber TValue="decimal" @bind-Value="vm.WeightJin" />
+                    <ValidationMessage For="@(() => vm.WeightJin)" />
+                </div>
+                <div class="row">
+                    <label>备注</label>
+                    <InputText @bind-Value="vm.Note" />
+                </div>
+                <button type="submit" class="submit-button">保存/更新</button>
+            </div>
+        </EditForm>
 
-<EntriesTable Items="entries" OnDelete="OnDelete" />
+        <EntriesTable Items="entries" OnDelete="OnDelete" />
+    }
+    else if (activeTab == "chart")
+    {
+        <WeightChart Days="60" />
+    }
+</div>
 
 @code {
     private List<SlimTrack.Shared.WeightEntryDto> entries = [];
+    private string activeTab = "record";
 
     private WeightForm vm = new()
     {
@@ -48,7 +65,9 @@
     private async Task Save()
     {
         if (vm.Date is null) return;
-        await Api.Upsert(new(vm.Date.Value, vm.WeightKg, vm.Note));
+        // 将斤转换为公斤,保留两位小数 (1公斤=2斤)
+        var weightGongJin = Math.Round(vm.WeightJin / 2m, 2);
+        await Api.Upsert(new(vm.Date.Value, weightGongJin, vm.Note));
         await Reload();
     }
 
@@ -63,8 +82,8 @@
         [Required(ErrorMessage = "请选择日期")]
         public DateOnly? Date { get; set; }
 
-        [Range(1, 500, ErrorMessage = "体重需在 1~500 kg")]
-        public decimal WeightKg { get; set; }
+        [Range(2, 1000, ErrorMessage = "体重需在 2~1000 斤")]
+        public decimal WeightJin { get; set; }
 
         [MaxLength(200)]
         public string? Note { get; set; }

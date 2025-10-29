@@ -24,17 +24,12 @@ using (var scope = app.Services.CreateScope())
 }
 
 app.UseHttpsRedirection();
-
-// �� �й� Blazor WASM ��̬��Դ������ Client ��Ŀ��
 app.UseBlazorFrameworkFiles();
 app.UseStaticFiles();
 
-// �� API ·�ɣ�������� Minimal API/Controller��
 app.MapControllers();
-// ���ﲻҪ�� MapGet("/")���ᵲסǰ�����
 
-
-// �б���֧�����ڷ�Χ����
+// 列表,支持日期范围过滤
 app.MapGet("/api/weights", async (AppDbContext db, DateOnly? start, DateOnly? end) =>
 {
     var q = db.WeightEntries.AsQueryable();
@@ -43,40 +38,47 @@ app.MapGet("/api/weights", async (AppDbContext db, DateOnly? start, DateOnly? en
 
     var list = await q
         .OrderBy(x => x.Date)
-        .Select(x => new WeightEntryDto(x.Id, x.Date, x.WeightKg, x.Note))
+        .Select(x => new WeightEntryDto(x.Id, x.Date, x.WeightJin, x.WeightGongJin, x.Note))
         .ToListAsync();
     return Results.Ok(list);
 });
 
-// ͳ�ƣ���� N �죩��
+// 统计(最近 N 天)
 app.MapGet("/api/weights/stats", async (AppDbContext db, int days) =>
 {
     var since = DateOnly.FromDateTime(DateTime.UtcNow.Date.AddDays(-days));
     var data = await db.WeightEntries
         .Where(x => x.Date >= since)
         .OrderBy(x => x.Date)
-        .Select(x => new { x.Date, x.WeightKg })
+        .Select(x => new { x.Date, x.WeightGongJin, x.WeightJin })
         .ToListAsync();
 
-    var min = data.Any() ? data.Min(x => x.WeightKg) : 0;
-    var max = data.Any() ? data.Max(x => x.WeightKg) : 0;
-    var avg = data.Any() ? Math.Round(data.Average(x => (double)x.WeightKg), 2) : 0;
+    var min = data.Any() ? data.Min(x => x.WeightGongJin) : 0;
+    var max = data.Any() ? data.Max(x => x.WeightGongJin) : 0;
+    var avg = data.Any() ? Math.Round(data.Average(x => (double)x.WeightGongJin), 2) : 0;
 
     return Results.Ok(new { min, max, avg, points = data });
 });
 
-// ����/���£�Upsert���� Date Ψһ����
+// 新增/更新(Upsert,按 Date 唯一键)
 app.MapPost("/api/weights", async (AppDbContext db, UpsertWeightEntryRequest req) =>
 {
     var entity = await db.WeightEntries.FirstOrDefaultAsync(x => x.Date == req.Date);
     if (entity is null)
     {
-        entity = new WeightEntry { Date = req.Date, WeightKg = req.WeightKg, Note = req.Note };
+        entity = new WeightEntry
+        {
+            Date = req.Date,
+            WeightGongJin = req.WeightGongJin,
+            WeightJin = Math.Round(req.WeightGongJin * 2, 2), // 1公斤=2斤
+            Note = req.Note
+        };
         db.WeightEntries.Add(entity);
     }
     else
     {
-        entity.WeightKg = req.WeightKg;
+        entity.WeightGongJin = req.WeightGongJin;
+        entity.WeightJin = Math.Round(req.WeightGongJin * 2, 2); // 1公斤=2斤
         entity.Note = req.Note;
         entity.UpdatedAt = DateTime.UtcNow;
     }
@@ -84,7 +86,7 @@ app.MapPost("/api/weights", async (AppDbContext db, UpsertWeightEntryRequest req
     return Results.Ok(new { entity.Id });
 });
 
-// ɾ��
+// 删除
 app.MapDelete("/api/weights/{id:int}", async (AppDbContext db, int id) =>
 {
     var e = await db.WeightEntries.FindAsync(id);
@@ -95,7 +97,7 @@ app.MapDelete("/api/weights/{id:int}", async (AppDbContext db, int id) =>
 });
 
 
-// �� SPA ���˵�ǰ�����
+// 回退到 SPA 的前端路由
 app.MapFallbackToFile("index.html");
 
 app.Run();
