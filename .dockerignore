@@ -1,0 +1,42 @@
+# 排除 bin 和 obj 文件夹
+**/bin/
+**/obj/
+
+# 排除 Git 文件
+.git/
+.gitignore
+.gitattributes
+
+# 排除 IDE 和编辑器文件
+.vs/
+.vscode/
+*.user
+*.suo
+*.userprefs
+.idea/
+
+# 排除测试和文档
+**/Tests/
+**/*.md
+LICENSE
+
+# 排除 Docker 相关文件
+Dockerfile*
+docker-compose*.yml
+.dockerignore
+*.ps1
+
+# 排除开发数据
+appdata/
+**/appdata/
+
+# 排除发布文件夹
+**/publish/
+
+# 排除日志文件
+*.log
+
+# 排除临时文件
+*.tmp
+*.temp
+*~

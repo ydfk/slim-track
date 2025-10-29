@@ -1,0 +1,21 @@
+services:
+  slim-track:
+    image: ydfk/slim-track:latest
+    container_name: slim-track
+    ports:
+      - "21000:8080" # 可以修改左侧端口以映射到主机的不同端口
+    volumes:
+      - ./appdata:/app/appdata # 持久化数据库文件
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_URLS=http://+:8080
+      - Logging__LogLevel__Default=Information
+      - Logging__LogLevel__Microsoft.AspNetCore=Warning
+    restart: unless-stopped
+    user: "0:0"  # 使用 root 用户运行以避免权限问题
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 10s
