@@ -19,4 +19,14 @@ namespace SlimTrack.Shared
         decimal WeightGongJin,  // 公斤
         string? Note
     );
+
+    public record BatchImportRequest(
+        List<BatchImportItem> Items
+    );
+
+    public record BatchImportItem(
+        string Date,            // 格式: yyyy.M.d 或 yyyy-MM-dd
+        decimal WeightJin,  //
+        string? Note
+    );
 }

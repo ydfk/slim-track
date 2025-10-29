@@ -37,7 +37,7 @@
             </div>
         </EditForm>
 
-        <EntriesTable Items="entries" OnDelete="OnDelete" />
+        <EntriesTable Items="entries" OnDelete="OnDelete" OnEdit="OnEdit" />
     }
     else if (activeTab == "chart")
     {
@@ -75,6 +75,16 @@
     {
         await Api.Delete(id);
         await Reload();
+    }
+
+    private void OnEdit(SlimTrack.Shared.WeightEntryDto entry)
+    {
+        vm.Date = entry.Date;
+        vm.WeightJin = entry.WeightJin;
+        vm.Note = entry.Note;
+
+        // 切换到记录标签页
+        activeTab = "record";
     }
 
     public class WeightForm

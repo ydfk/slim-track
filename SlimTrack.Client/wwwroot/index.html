@@ -9,7 +9,28 @@
 <html lang="zh-CN">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="description" content="体重记录与追踪应用" />
+    <meta name="theme-color" content="#3b82f6" />
+
+    <!-- iOS Safari 特定 meta 标签 -->
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="体重记录" />
+
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json" />
+
+    <!-- iOS 图标 -->
+    <link rel="apple-touch-icon" href="icon-192.png" />
+    <link rel="apple-touch-icon" sizes="152x152" href="icon-152.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="icon-180.png" />
+    <link rel="apple-touch-icon" sizes="167x167" href="icon-167.png" />
+
+    <!-- 标准图标 -->
+    <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png" />
+    <link rel="icon" type="image/png" sizes="512x512" href="icon-512.png" />
+
     <base href="/" />
     <link rel="stylesheet" href="css/app.css" />
     <link rel="stylesheet" href="SlimTrack.Client.styles.css" />
@@ -19,6 +40,17 @@
 
     <script src="_framework/blazor.webassembly.js"></script>
     <script src="chart.umd.min.js"></script>
+
+    <!-- Service Worker 注册 -->
+    <script>
+      if ("serviceWorker" in navigator) {
+        navigator.serviceWorker
+          .register("/service-worker.js")
+          .then((reg) => console.log("Service Worker 注册成功", reg))
+          .catch((err) => console.log("Service Worker 注册失败", err));
+      }
+    </script>
+
     <script>
       window.slimTrackCharts = {
         renderLine: (canvasId, labels, data, isHorizontal = false, isJin = true) => {

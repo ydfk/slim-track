@@ -96,6 +96,77 @@ app.MapDelete("/api/weights/{id:int}", async (AppDbContext db, int id) =>
     return Results.NoContent();
 });
 
+// 批量导入
+app.MapPost("/api/weights/batch-import", async (AppDbContext db, BatchImportRequest req) =>
+{
+    var results = new List<object>();
+    var errors = new List<string>();
+
+    foreach (var item in req.Items)
+    {
+        try
+        {
+            // 解析日期,支持 yyyy.M.d 或 yyyy-MM-dd 格式
+            DateOnly date;
+            if (item.Date.Contains('.'))
+            {
+                var parts = item.Date.Split('.');
+                if (parts.Length != 3 || !int.TryParse(parts[0], out var year) ||
+                    !int.TryParse(parts[1], out var month) || !int.TryParse(parts[2], out var day))
+                {
+                    errors.Add($"日期格式错误: {item.Date}");
+                    continue;
+                }
+                date = new DateOnly(year, month, day);
+            }
+            else
+            {
+                if (!DateOnly.TryParse(item.Date, out date))
+                {
+                    errors.Add($"日期格式错误: {item.Date}");
+                    continue;
+                }
+            }
+
+            // 查找或创建
+            var entity = await db.WeightEntries.FirstOrDefaultAsync(x => x.Date == date);
+            if (entity is null)
+            {
+                entity = new WeightEntry
+                {
+                    Date = date,
+                    WeightJin = item.WeightJin,
+                    WeightGongJin = Math.Round(item.WeightJin / 2, 2),
+                    Note = item.Note
+                };
+                db.WeightEntries.Add(entity);
+                results.Add(new { Date = date.ToString("yyyy-MM-dd"), Status = "Created", WeightGongJin = item.WeightJin });
+            }
+            else
+            {
+                entity.WeightJin = item.WeightJin;
+                entity.WeightGongJin = Math.Round(item.WeightJin / 2, 2);
+                entity.Note = item.Note;
+                entity.UpdatedAt = DateTime.UtcNow;
+                results.Add(new { Date = date.ToString("yyyy-MM-dd"), Status = "Updated", WeightGongJin = item.WeightJin });
+            }
+        }
+        catch (Exception ex)
+        {
+            errors.Add($"处理失败 {item.Date}: {ex.Message}");
+        }
+    }
+
+    await db.SaveChangesAsync();
+    return Results.Ok(new
+    {
+        TotalProcessed = results.Count,
+        TotalErrors = errors.Count,
+        Results = results,
+        Errors = errors
+    });
+});
+
 
 // 回退到 SPA 的前端路由
 app.MapFallbackToFile("index.html");

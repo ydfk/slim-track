@@ -122,6 +122,89 @@ button {
   font-weight: 600;
 }
 
+.table-row-clickable {
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.table-row-clickable:hover {
+  background-color: #f9fafb;
+}
+
+.table-row-clickable:active {
+  background-color: #f3f4f6;
+}
+
+/* 分页样式 */
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  margin: 16px 0 8px;
+  flex-wrap: wrap;
+}
+
+.page-btn {
+  padding: 8px 16px;
+  background-color: #f3f4f6;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.2s;
+}
+
+.page-btn:hover:not(:disabled) {
+  background-color: #e5e7eb;
+  border-color: #9ca3af;
+}
+
+.page-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.page-numbers {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+
+.page-number {
+  padding: 6px 12px;
+  background-color: #fff;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  min-width: 36px;
+  transition: all 0.2s;
+}
+
+.page-number:hover {
+  background-color: #f3f4f6;
+  border-color: #9ca3af;
+}
+
+.page-number.active {
+  background-color: #3b82f6;
+  color: white;
+  border-color: #3b82f6;
+}
+
+.page-ellipsis {
+  padding: 0 4px;
+  color: #6b7280;
+}
+
+.pagination-info {
+  text-align: center;
+  font-size: 13px;
+  color: #6b7280;
+  margin-bottom: 8px;
+}
+
 /* 图表容器样式 */
 .chart-container {
   padding: 8px;
@@ -183,7 +266,6 @@ button {
 .chart-scroll.horizontal-scroll {
   overflow-x: hidden;
   overflow-y: auto;
-  max-height: 600px; /* 限制最大高度,启用滚动 */
 }
 
 /* 自定义滚动条样式 */
@@ -209,7 +291,7 @@ button {
 .chart-wrapper {
   min-width: 100%;
   width: max-content;
-  height: 320px;
+  height: auto;
   position: relative;
 }
 
@@ -223,22 +305,19 @@ button {
 @media (max-width: 768px) {
   .chart-wrapper {
     min-width: 600px; /* 确保图表有足够宽度可以滚动 */
+    height: auto;
   }
 
   .chart-wrapper.horizontal {
     min-width: 100%;
     min-height: 1000px; /* 平板横屏时显示更多数据 */
   }
-
-  .chart-scroll.horizontal-scroll {
-    max-height: 500px; /* 平板上限制高度 */
-  }
 }
 
 @media (max-width: 480px) {
   .chart-wrapper {
     min-width: 500px;
-    height: 280px;
+    height: auto;
   }
 
   .chart-wrapper.horizontal {
@@ -248,10 +327,6 @@ button {
 
   .chart-container {
     padding: 6px;
-  }
-
-  .chart-scroll.horizontal-scroll {
-    max-height: 400px; /* 手机上限制高度,方便滚动 */
   }
 
   .chart-header h4 {
@@ -308,6 +383,27 @@ button {
   /* 在小屏幕上优化表格显示 */
   .table button {
     padding: 6px 10px;
+    font-size: 12px;
+  }
+
+  /* 移动端分页优化 */
+  .pagination {
+    gap: 6px;
+    margin: 12px 0 8px;
+  }
+
+  .page-btn {
+    padding: 6px 12px;
+    font-size: 13px;
+  }
+
+  .page-number {
+    padding: 5px 10px;
+    font-size: 13px;
+    min-width: 32px;
+  }
+
+  .pagination-info {
     font-size: 12px;
   }
 }
