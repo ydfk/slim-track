@@ -1,0 +1,73 @@
+@inject SlimTrack.Client.Services.WeightService Api
+@inject IJSRuntime JS
+@implements IAsyncDisposable
+@code {
+  [Parameter] public int Days { get; set; } = 30;
+  ElementReference canvasRef;
+  private bool isHorizontal = false;
+  private IJSObjectReference? chartsModule;
+
+  protected override async Task OnAfterRenderAsync(bool firstRender)
+  {
+    if (!firstRender)
+    {
+      return;
+    }
+
+    chartsModule = await JS.InvokeAsync<IJSObjectReference>("import", "./js/slimTrackCharts.js");
+    await Render();
+  }
+
+  private async Task Render()
+  {
+    if (chartsModule is null)
+    {
+      return;
+    }
+
+    var stats = await Api.Stats(Days) ?? new(0, 0, 0, []);
+    var labels = stats.points.Select(p => p.date.ToString("MM-dd")).ToArray();
+    var data = stats.points
+      .Select(p => p.waistCircumference.HasValue ? (double?)p.waistCircumference.Value : null)
+      .ToArray();
+
+    await chartsModule.InvokeVoidAsync("renderWaistLine", "waistchart", labels, data, isHorizontal);
+  }
+
+  private async Task ToggleOrientation()
+  {
+    isHorizontal = !isHorizontal;
+    await Render();
+  }
+
+  public async ValueTask DisposeAsync()
+  {
+    if (chartsModule is not null)
+    {
+      await chartsModule.DisposeAsync();
+      chartsModule = null;
+    }
+  }
+}
+<div class="card chart-container">
+  <div class="chart-header">
+    <h4>腰围趋势图</h4>
+    <div class="chart-controls">
+      <button class="orientation-btn" @onclick="ToggleOrientation" title="切换方向">
+        @if (isHorizontal)
+        {
+          <span>📊 竖向</span>
+        }
+        else
+        {
+          <span>📈 横向</span>
+        }
+      </button>
+    </div>
+  </div>
+  <div class="chart-scroll @(isHorizontal ? "horizontal-scroll" : "")">
+    <div class="chart-wrapper @(isHorizontal ? "horizontal" : "")">
+      <canvas id="waistchart" @ref="canvasRef"></canvas>
+    </div>
+  </div>
+</div>

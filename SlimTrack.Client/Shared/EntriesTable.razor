@@ -8,7 +8,11 @@
     private int pageSize = 20;
 
     private int TotalPages => (int)Math.Ceiling((double)Items.Count / pageSize);
-    private List<WeightEntryDto> PagedItems => Items.Skip((currentPage - 1) * pageSize).Take(pageSize).ToList();
+    private List<WeightEntryDto> PagedItems => Items
+    .OrderByDescending(x => x.Date)
+    .Skip((currentPage - 1) * pageSize)
+    .Take(pageSize)
+    .ToList();
 
     private void NextPage()
     {
@@ -43,6 +47,7 @@
             <th>日期</th>
             <th>体重(斤)</th>
             <th>体重(公斤)</th>
+            <th>腰围(厘米)</th>
             <th>备注</th>
             <th></th>
         </tr>
@@ -54,6 +59,7 @@
                 <td>@x.Date.ToString("yyyy-MM-dd")</td>
                 <td>@x.WeightJin.ToString("F2")</td>
                 <td>@x.WeightGongJin.ToString("F2")</td>
+                <td>@(x.WaistCircumference?.ToString("F2") ?? "-")</td>
                 <td>@x.Note</td>
                 <td @onclick:stopPropagation="true">
                     <button @onclick="() => OnDelete.InvokeAsync(x.Id)">删除</button>

@@ -1,27 +1,38 @@
 ﻿@inject SlimTrack.Client.Services.WeightService Api
 @inject IJSRuntime JS
+@implements IAsyncDisposable
 @code {
     [Parameter] public int Days { get; set; } = 30;
     ElementReference canvasRef;
     private bool isHorizontal = false;
     private bool isJin = true;
+    private IJSObjectReference? chartsModule;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (firstRender) await Render();
+        if (!firstRender)
+        {
+            return;
+        }
+
+        chartsModule = await JS.InvokeAsync<IJSObjectReference>("import", "./js/slimTrackCharts.js");
+        await Render();
     }
 
     private async Task Render()
     {
-        var stats = await Api.Stats(Days) ?? new(0, 0, 0, []);
-        var labels = stats.points.Select(p => p.date.ToString("MM-dd")).ToArray();
-        var data = stats.points.Select(p => (double)p.weightGongJin).ToArray();
-        if (isJin)
+        if (chartsModule is null)
         {
-            data = stats.points.Select(p => (double)(p.weightJin)).ToArray();
+            return;
         }
 
-        await JS.InvokeVoidAsync("slimTrackCharts.renderLine", "wchart", labels, data, isHorizontal);
+        var stats = await Api.Stats(Days) ?? new(0, 0, 0, []);
+        var labels = stats.points.Select(p => p.date.ToString("MM-dd")).ToArray();
+        var data = isJin
+            ? stats.points.Select(p => (double)p.weightJin).ToArray()
+            : stats.points.Select(p => (double)p.weightGongJin).ToArray();
+
+        await chartsModule.InvokeVoidAsync("renderWeightLine", "wchart", labels, data, isHorizontal, isJin);
     }
 
     private async Task ToggleOrientation()
@@ -34,6 +45,15 @@
     {
         isJin = !isJin;
         await Render();
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (chartsModule is not null)
+        {
+            await chartsModule.DisposeAsync();
+            chartsModule = null;
+        }
     }
 }
 <div class="card chart-container">

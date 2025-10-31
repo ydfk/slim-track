@@ -27,5 +27,5 @@ namespace SlimTrack.Client.Services
 
     public record StatsResponse(decimal min, decimal max, double avg, List<Point> points);
 
-    public record Point(DateOnly date, decimal weightGongJin, decimal weightJin);
+    public record Point(DateOnly date, decimal weightGongJin, decimal weightJin, decimal? waistCircumference);
 }

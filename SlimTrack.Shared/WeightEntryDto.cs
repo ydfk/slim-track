@@ -11,12 +11,14 @@ namespace SlimTrack.Shared
         DateOnly Date,
         decimal WeightJin,      // 斤
         decimal WeightGongJin,  // 公斤
+        decimal? WaistCircumference,  // 腰围(厘米)
         string? Note
     );
 
     public record UpsertWeightEntryRequest(
         DateOnly Date,
         decimal WeightGongJin,  // 公斤
+        decimal? WaistCircumference,  // 腰围(厘米)
         string? Note
     );
 

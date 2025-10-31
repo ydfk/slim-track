@@ -38,7 +38,7 @@ app.MapGet("/api/weights", async (AppDbContext db, DateOnly? start, DateOnly? en
 
     var list = await q
         .OrderBy(x => x.Date)
-        .Select(x => new WeightEntryDto(x.Id, x.Date, x.WeightJin, x.WeightGongJin, x.Note))
+        .Select(x => new WeightEntryDto(x.Id, x.Date, x.WeightJin, x.WeightGongJin, x.WaistCircumference, x.Note))
         .ToListAsync();
     return Results.Ok(list);
 });
@@ -50,7 +50,7 @@ app.MapGet("/api/weights/stats", async (AppDbContext db, int days) =>
     var data = await db.WeightEntries
         .Where(x => x.Date >= since)
         .OrderBy(x => x.Date)
-        .Select(x => new { x.Date, x.WeightGongJin, x.WeightJin })
+        .Select(x => new { x.Date, x.WeightGongJin, x.WeightJin, x.WaistCircumference })
         .ToListAsync();
 
     var min = data.Any() ? data.Min(x => x.WeightGongJin) : 0;
@@ -71,6 +71,7 @@ app.MapPost("/api/weights", async (AppDbContext db, UpsertWeightEntryRequest req
             Date = req.Date,
             WeightGongJin = req.WeightGongJin,
             WeightJin = Math.Round(req.WeightGongJin * 2, 2), // 1公斤=2斤
+            WaistCircumference = req.WaistCircumference,
             Note = req.Note
         };
         db.WeightEntries.Add(entity);
@@ -79,6 +80,7 @@ app.MapPost("/api/weights", async (AppDbContext db, UpsertWeightEntryRequest req
     {
         entity.WeightGongJin = req.WeightGongJin;
         entity.WeightJin = Math.Round(req.WeightGongJin * 2, 2); // 1公斤=2斤
+        entity.WaistCircumference = req.WaistCircumference;
         entity.Note = req.Note;
         entity.UpdatedAt = DateTime.UtcNow;
     }

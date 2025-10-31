@@ -1,4 +1,4 @@
-<!--
+﻿<!--
  * @Description: Copyright (c) ydfk. All rights reserved
  * @Author: ydfk
  * @Date: 2025-10-28 18:57:02
@@ -48,95 +48,6 @@
           .then((reg) => console.log("Service Worker 注册成功", reg))
           .catch((err) => console.log("Service Worker 注册失败", err));
       }
-    </script>
-
-    <script>
-      window.slimTrackCharts = {
-        renderLine: (canvasId, labels, data, isHorizontal = false, isJin = true) => {
-          const ctx = document.getElementById(canvasId).getContext("2d");
-          if (window._stChart) {
-            window._stChart.destroy();
-          }
-
-          const unit = isJin ? "斤" : "公斤";
-
-          // 横向模式:日期在Y轴(左侧),体重在X轴(顶部)
-          const chartConfig = isHorizontal
-            ? {
-                type: "line",
-                data: {
-                  labels,
-                  datasets: [
-                    {
-                      label: `体重(${unit})`,
-                      data,
-                      tension: 0.3,
-                      fill: false,
-                      borderColor: "rgb(59, 130, 246)",
-                      backgroundColor: "rgba(59, 130, 246, 0.5)",
-                      pointRadius: 3,
-                      pointHoverRadius: 5,
-                    },
-                  ],
-                },
-                options: {
-                  indexAxis: "y", // 关键:将索引轴设为Y轴,实现旋转效果
-                  responsive: true,
-                  maintainAspectRatio: false,
-                  scales: {
-                    x: {
-                      position: "top", // 体重轴在顶部
-                      beginAtZero: false,
-                      title: {
-                        display: true,
-                        text: `体重(${unit})`,
-                      },
-                    },
-                    y: {
-                      // 日期在左侧
-                      ticks: {
-                        font: { size: 10 },
-                      },
-                    },
-                  },
-                  plugins: {
-                    legend: { display: false }, // 隐藏图例,因为已有轴标题
-                    tooltip: { enabled: true },
-                  },
-                },
-              }
-            : {
-                type: "line",
-                data: {
-                  labels,
-                  datasets: [
-                    {
-                      label: `体重(${unit})`,
-                      data,
-                      tension: 0.3,
-                      fill: false,
-                      borderColor: "rgb(59, 130, 246)",
-                      backgroundColor: "rgba(59, 130, 246, 0.5)",
-                      pointRadius: 3,
-                      pointHoverRadius: 5,
-                    },
-                  ],
-                },
-                options: {
-                  responsive: true,
-                  maintainAspectRatio: false,
-                  scales: {
-                    y: { beginAtZero: false },
-                  },
-                  plugins: {
-                    legend: { display: true },
-                  },
-                },
-              };
-
-          window._stChart = new Chart(ctx, chartConfig);
-        },
-      };
     </script>
   </body>
 </html>

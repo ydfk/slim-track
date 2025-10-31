@@ -1,4 +1,4 @@
-﻿@page "/"
+@page "/"
 @using System.ComponentModel.DataAnnotations
 @inject SlimTrack.Client.Services.WeightService Api
 
@@ -8,8 +8,11 @@
     <button class="tab-button @(activeTab == "record" ? "active" : "")" @onclick='() => activeTab = "record"'>
         记录
     </button>
-    <button class="tab-button @(activeTab == "chart" ? "active" : "")" @onclick='() => activeTab = "chart"'>
-        图表
+    <button class="tab-button @(activeTab == "weight" ? "active" : "")" @onclick='() => activeTab = "weight"'>
+        体重
+    </button>
+    <button class="tab-button @(activeTab == "waist" ? "active" : "")" @onclick='() => activeTab = "waist"'>
+        腰围
     </button>
 </div>
 
@@ -26,8 +29,13 @@
                 </div>
                 <div class="row">
                     <label>体重(斤)</label>
-                    <InputNumber TValue="decimal" @bind-Value="vm.WeightJin" />
+                    <InputNumber TValue="decimal?" @bind-Value="vm.WeightJin" />
                     <ValidationMessage For="@(() => vm.WeightJin)" />
+                </div>
+                <div class="row">
+                    <label>腰围(厘米)</label>
+                    <InputNumber TValue="decimal?" @bind-Value="vm.WaistCircumference" />
+                    <ValidationMessage For="@(() => vm.WaistCircumference)" />
                 </div>
                 <div class="row">
                     <label>备注</label>
@@ -39,9 +47,13 @@
 
         <EntriesTable Items="entries" OnDelete="OnDelete" OnEdit="OnEdit" />
     }
-    else if (activeTab == "chart")
+    else if (activeTab == "weight")
     {
         <WeightChart Days="60" />
+    }
+    else if (activeTab == "waist")
+    {
+        <WaistChart Days="60" />
     }
 </div>
 
@@ -64,10 +76,10 @@
 
     private async Task Save()
     {
-        if (vm.Date is null) return;
+        if (vm.Date is null || vm.WeightJin is null) return;
         // 将斤转换为公斤,保留两位小数 (1公斤=2斤)
-        var weightGongJin = Math.Round(vm.WeightJin / 2m, 2);
-        await Api.Upsert(new(vm.Date.Value, weightGongJin, vm.Note));
+        var weightGongJin = Math.Round(vm.WeightJin.Value / 2m, 2);
+        await Api.Upsert(new(vm.Date.Value, weightGongJin, vm.WaistCircumference, vm.Note));
         await Reload();
     }
 
@@ -81,6 +93,7 @@
     {
         vm.Date = entry.Date;
         vm.WeightJin = entry.WeightJin;
+        vm.WaistCircumference = entry.WaistCircumference;
         vm.Note = entry.Note;
 
         // 切换到记录标签页
@@ -93,7 +106,10 @@
         public DateOnly? Date { get; set; }
 
         [Range(2, 1000, ErrorMessage = "体重需在 2~1000 斤")]
-        public decimal WeightJin { get; set; }
+        public decimal? WeightJin { get; set; }
+
+        [Range(0, 500, ErrorMessage = "腰围需在 0~500 厘米")]
+        public decimal? WaistCircumference { get; set; }
 
         [MaxLength(200)]
         public string? Note { get; set; }

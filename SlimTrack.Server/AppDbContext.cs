@@ -13,6 +13,7 @@ namespace SlimTrack.Server
                 e.HasKey(x => x.Id);
                 e.Property(x => x.WeightJin).HasPrecision(6, 2); // 斤,保留2位小数
                 e.Property(x => x.WeightGongJin).HasPrecision(5, 2); // 公斤,保留2位小数
+                e.Property(x => x.WaistCircumference).HasPrecision(5, 2); // 腰围(厘米),保留2位小数
                 e.HasIndex(x => x.Date).IsUnique(); // 每日一条
             });
         }
@@ -24,6 +25,7 @@ namespace SlimTrack.Server
         public DateOnly Date { get; set; }
         public decimal WeightJin { get; set; } // 斤
         public decimal WeightGongJin { get; set; } // 公斤
+        public decimal? WaistCircumference { get; set; } // 腰围(厘米)
         public string? Note { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
